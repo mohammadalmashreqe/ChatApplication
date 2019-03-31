@@ -1,0 +1,24 @@
+{
+  "name": "chat-application",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mohammadalmashreqe/ChatApplication.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mohammadalmashreqe/ChatApplication/issues"
+  },
+  "homepage": "https://github.com/mohammadalmashreqe/ChatApplication#readme",
+  "dependencies": {
+    "bootstrap": "^4.3.1",
+    "express": "^4.15.2",
+    "socket.io": "^2.2.0"
+  }
+}
