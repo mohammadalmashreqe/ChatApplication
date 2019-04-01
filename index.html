@@ -11,41 +11,102 @@
       #messages { list-style-type: none; margin: 0; padding: 0; }
       #messages li { padding: 5px 10px; }
       #messages li:nth-child(odd) { background: #eee; }
+
+      #snackbar {
+    visibility: hidden; /* Hidden by default. Visible on click */
+    min-width: 250px; /* Set a default minimum width */
+    margin-left: -125px; /* Divide value of min-width by 2 */
+    background-color: #333; /* Black background color */
+    color: #fff; /* White text color */
+    text-align: center; /* Centered text */
+    border-radius: 2px; /* Rounded borders */
+    padding: 16px; /* Padding */
+    position: fixed; /* Sit on top of the screen */
+    z-index: 1; /* Add a z-index if needed */
+    left: 50%; /* Center the snackbar */
+    bottom: 30px; /* 30px from the bottom */
+  }
+  
+  /* Show the snackbar when clicking on a button (class added with JavaScript) */
+  #snackbar.show {
+    visibility: visible; /* Show the snackbar */
+    /* Add animation: Take 0.5 seconds to fade in and out the snackbar. 
+    However, delay the fade out process for 2.5 seconds */
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  }
+  
+  /* Animations to fade the snackbar in and out */
+  @-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;} 
+    to {bottom: 30px; opacity: 1;}
+  }
+  
+  @keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+  }
+  
+  @-webkit-keyframes fadeout {
+    from {bottom: 30px; opacity: 1;} 
+    to {bottom: 0; opacity: 0;}
+  }
+  
+  @keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+  }
+
     </style>
 
 
-       
-      
-  
-    
-    
+
   
   </head>
   <body>
-    
+        <div id="snackbar"></div>
     <ul id="messages"></ul>
-    <form action="">  <div>
-    <h3 id="numofuser">hhhhhh  </h3>      
+       
     </div>
+    <form action="">  <div>
+   
       <input id="m" autocomplete="off" /><button onclick="send()">Send</button>
     </form>
 
     <script src="/socket.io/socket.io.js"></script>
 <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 <script>
-    var name= window.prompt("please enter user name : ");
+    
     var socket = io();
-    socket.on("user count",function(count){
-           var h3= document.getElementById("numofuser");
-           h3.innerHTML="Online user" +count;});
-        $(function () {
-     
-         
-      
+   
+  
+    
+         var name=window.prompt("please enter user name : ");
+         if(name==null)
+         name= "User";
 
+        socket.emit("user name",name);
+     
+          
+      
+       
+        socket.on("new user",function(name) 
+        {
+            myFunction(name +" Conencted ");
+        });
+
+        socket.on("leave user",function(name)
+        {
+            myFunction(name + " Disconnected");
+        });
+           $(function () {
+     
           $('form').submit(function(e){
             e.preventDefault(); // prevents page reloading
             socket.emit("user name",name)
+      
+        
+
             socket.emit('chat message', $('#m').val());
             $('#m').val('');
             return false;
@@ -54,12 +115,22 @@
             $('#messages').append($('<li>').text(msg));
           });
 
-          socket.on("user count",function(count){
-           var h3= document.getElementById("numofuser");
-           h3.innerHTML="Online user" +count;
-          });
+     
 
         });
+
+
+        function myFunction(msg) {
+  // Get the snackbar DIV
+  var x = document.getElementById("snackbar");
+
+  // Add the "show" class to DIV
+  x.className = "show";
+x.innerHTML=msg;
+  // After 3 seconds, remove the show class from DIV
+  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+
       </script>
   </body>
 </html>
