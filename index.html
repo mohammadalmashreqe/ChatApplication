@@ -58,42 +58,61 @@
   }
 
     </style>
-
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
 
   
   </head>
   <body>
-        <div id="snackbar"></div>
+        <div id="snackbar"></div>  
+        
+        
+ <button style="position: absolute; right: 10px; top: 5px;" class="btn btn-primary" onclick="Logout()">Logout</button>
+        
     <ul id="messages"></ul>
        
-    </div>
-    <form action="">  <div>
+    
+      
+  
+        <form action="">  
+ 
    
-      <input id="m" autocomplete="off" /><button onclick="send()">Send</button>
+    
+        <input id="m" autocomplete="off" />    <button >Send</button>
+  
+     
+    
     </form>
-
+ 
     <script src="/socket.io/socket.io.js"></script>
 <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 <script>
     
     var socket = io();
    
-  
-    
-       
+ 
+      var name; 
      
-          
-      
-       
-         
-          var name=window.prompt("please enter user name : ");
-         if(name==null)
-         name= "User";
+     if(getCookie("user")=='')
+     {
+     name=window.prompt("please enter user name : ");
+     setCookie("user",name);
+     socket.emit("user name",name);
+     }
+     else 
+     {name=getCookie("user");
+     socket.emit("user name",name);
+    }
 
-        socket.emit("user name",name);
+   myFunction(name +" Conencted ");
+
+          
         
-            myFunction(name +" Conencted ");
+  
+
+         
+     
       
 
         socket.on("leave user",function(name)
@@ -131,6 +150,66 @@ x.innerHTML=msg;
   // After 3 seconds, remove the show class from DIV
   setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 }
+
+
+function setCookie(cname, cvalue) {
+
+
+  document.cookie = cname + "=" + cvalue + ";" +"path=/";
+}
+
+function Logout()
+{
+  document.cookie = "user=;path=/;";
+  location.reload();
+}
+function getCookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+
+function checkCookie(cname) {
+  var username = getCookie(cname);
+  if (username != "") {
+   alert("Welcome again " + username);
+  } else {
+    username = prompt("Please enter your name:", "");
+    if (username != "" && username != null) {
+      setCookie("username", username);
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       </script>
   </body>

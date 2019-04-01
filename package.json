@@ -18,6 +18,7 @@
   "homepage": "https://github.com/mohammadalmashreqe/ChatApplication#readme",
   "dependencies": {
     "bootstrap": "^4.3.1",
+    "cookie-parser": "^1.4.4",
     "cookies": "^0.7.3",
     "express": "^4.15.2",
     "socket.io": "^2.2.0"

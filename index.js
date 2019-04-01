@@ -1,22 +1,22 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var userCount=0; 
-var $ipsConnected = [];
-var Cookies = require('cookies')
-var cookies;
+var cookieParser=require("cookie-parser");
+app.use(cookieParser());
+
 app.get('/', function(req, res){ 
     
-    cookies = new Cookies( req, res);
+
 
   res.sendFile(__dirname + '/index.html');
- 
+
 
 });
 
 io.on('connection', function(socket){
-   
+ 
     
+  
        
 
     socket.on("user name",function(name){
@@ -29,11 +29,6 @@ io.on('connection', function(socket){
 
 
     
-  function incuser (){
-        userCount++;
-        console.log(socket.username +"  connected");
-      
-}
     
   
   
