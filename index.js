@@ -3,24 +3,36 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var userCount=0; 
 var $ipsConnected = [];
-app.get('/', function(req, res){
+var Cookies = require('cookies')
+var cookies;
+app.get('/', function(req, res){ 
+    
+    cookies = new Cookies( req, res);
+
   res.sendFile(__dirname + '/index.html');
+ 
+
 });
 
 io.on('connection', function(socket){
    
+    
+       
+
     socket.on("user name",function(name){
         socket.username=name;
-        incuser();
+      
+   
       
     }
-    )
+    );
+
+
     
   function incuser (){
         userCount++;
         console.log(socket.username +"  connected");
-       
-        io.emit("new user",socket.username);
+      
 }
     
   

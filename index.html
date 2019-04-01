@@ -81,19 +81,20 @@
    
   
     
-         var name=window.prompt("please enter user name : ");
-         if(name==null)
-         name= "User";
-
-        socket.emit("user name",name);
+       
      
           
       
        
-        socket.on("new user",function(name) 
-        {
+         
+          var name=window.prompt("please enter user name : ");
+         if(name==null)
+         name= "User";
+
+        socket.emit("user name",name);
+        
             myFunction(name +" Conencted ");
-        });
+      
 
         socket.on("leave user",function(name)
         {
