@@ -1,194 +1,386 @@
 <!doctype html>
 <html>
-  <head>
-    <title>Socket.IO chat</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
 
-      #snackbar {
-    visibility: hidden; /* Hidden by default. Visible on click */
-    min-width: 250px; /* Set a default minimum width */
-    margin-left: -125px; /* Divide value of min-width by 2 */
-    background-color: #333; /* Black background color */
-    color: #fff; /* White text color */
-    text-align: center; /* Centered text */
-    border-radius: 2px; /* Rounded borders */
-    padding: 16px; /* Padding */
-    position: fixed; /* Sit on top of the screen */
-    z-index: 1; /* Add a z-index if needed */
-    left: 50%; /* Center the snackbar */
-    bottom: 30px; /* 30px from the bottom */
-  }
-  
-  /* Show the snackbar when clicking on a button (class added with JavaScript) */
-  #snackbar.show {
-    visibility: visible; /* Show the snackbar */
-    /* Add animation: Take 0.5 seconds to fade in and out the snackbar. 
+<head>
+  <title>Socket.IO chat</title>
+  <style>
+    /* Center the loader */
+#loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 150px;
+  height: 150px;
+  margin: -75px 0 0 -75px;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Add animation to "page content" */
+.animate-bottom {
+  position: relative;
+  -webkit-animation-name: animatebottom;
+  -webkit-animation-duration: 1s;
+  animation-name: animatebottom;
+  animation-duration: 1s
+}
+
+@-webkit-keyframes animatebottom {
+  from { bottom:-100px; opacity:0 } 
+  to { bottom:0px; opacity:1 }
+}
+
+@keyframes animatebottom { 
+  from{ bottom:-100px; opacity:0 } 
+  to{ bottom:0; opacity:1 }
+}
+
+#myDiv {
+  display: none;
+  text-align: center;
+}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font: 13px Helvetica, Arial;
+    }
+
+    form {
+      background: #000;
+      padding: 3px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    form input {
+      border: 0;
+      padding: 10px;
+      width: 90%;
+      margin-right: .5%;
+    }
+
+    form button {
+      width: 9%;
+      background: rgb(130, 224, 255);
+      border: none;
+      padding: 10px;
+    }
+
+    #messages {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    #messages li {
+      padding: 5px 10px;
+    }
+
+    #messages li:nth-child(odd) {
+      background: #eee;
+    }
+
+    #snackbar {
+      visibility: hidden;
+      /* Hidden by default. Visible on click */
+      min-width: 250px;
+      /* Set a default minimum width */
+      margin-left: -125px;
+      /* Divide value of min-width by 2 */
+      background-color: #333;
+      /* Black background color */
+      color: #fff;
+      /* White text color */
+      text-align: center;
+      /* Centered text */
+      border-radius: 2px;
+      /* Rounded borders */
+      padding: 16px;
+      /* Padding */
+      position: fixed;
+      /* Sit on top of the screen */
+      z-index: 1;
+      /* Add a z-index if needed */
+      left: 50%;
+      /* Center the snackbar */
+      bottom: 30px;
+      /* 30px from the bottom */
+    }
+
+    /* Show the snackbar when clicking on a button (class added with JavaScript) */
+    #snackbar.show {
+      visibility: visible;
+      /* Show the snackbar */
+      /* Add animation: Take 0.5 seconds to fade in and out the snackbar. 
     However, delay the fade out process for 2.5 seconds */
-    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-    animation: fadein 0.5s, fadeout 0.5s 2.5s;
-  }
-  
-  /* Animations to fade the snackbar in and out */
-  @-webkit-keyframes fadein {
-    from {bottom: 0; opacity: 0;} 
-    to {bottom: 30px; opacity: 1;}
-  }
-  
-  @keyframes fadein {
-    from {bottom: 0; opacity: 0;}
-    to {bottom: 30px; opacity: 1;}
-  }
-  
-  @-webkit-keyframes fadeout {
-    from {bottom: 30px; opacity: 1;} 
-    to {bottom: 0; opacity: 0;}
-  }
-  
-  @keyframes fadeout {
-    from {bottom: 30px; opacity: 1;}
-    to {bottom: 0; opacity: 0;}
-  }
+      -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+      animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    }
 
-    </style>
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    /* Animations to fade the snackbar in and out */
+    @-webkit-keyframes fadein {
+      from {
+        bottom: 0;
+        opacity: 0;
+      }
+
+      to {
+        bottom: 30px;
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadein {
+      from {
+        bottom: 0;
+        opacity: 0;
+      }
+
+      to {
+        bottom: 30px;
+        opacity: 1;
+      }
+    }
+
+    @-webkit-keyframes fadeout {
+      from {
+        bottom: 30px;
+        opacity: 1;
+      }
+
+      to {
+        bottom: 0;
+        opacity: 0;
+      }
+    }
+
+    @keyframes fadeout {
+      from {
+        bottom: 30px;
+        opacity: 1;
+      }
+
+      to {
+        bottom: 0;
+        opacity: 0;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
 
 
+
+</head>
+
+<body>
+
   
-  </head>
-  <body>
-        <div id="snackbar"></div>  
-        
-        
- <button style="position: absolute; right: 10px; top: 5px;" class="btn btn-primary" onclick="Logout()">Logout</button>
-        
-    <ul id="messages"></ul>
-       
-    
-      
-  
-        <form action="">  
- 
    
-    
-        <input id="m" autocomplete="off" />    <button >Send</button>
-  
-     
-    
-    </form>
- 
-    <script src="/socket.io/socket.io.js"></script>
-<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-<script>
-    
+
+    <div style="display:none;" id="myDiv" class="animate-bottom">
+<br>
+<br>
+      <div id="loader"></div>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+
+      <h2>Enter user name !</h2>
+      <input id="user" autocomplete="off" />
+      <button class="btn btn-primary" onclick="createUser()">Log in </button>
+
+  </div>
+ <div id="snackbar"></div> 
+
+
+  <button style="position: absolute; right: 10px; top: 5px;" class="btn btn-primary" id="logout" onclick="Logout()">Logout</button>
+
+  <ul id="messages"></ul>
+
+
+
+
+  <form action="" id="main">
+
+
+
+    <input id="m" autocomplete="off" /> <button>Send</button>
+
+
+
+  </form>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script>
+
     var socket = io();
-   
- 
-      var name; 
-     
-     if(getCookie("user")=='')
+
+
+    var name;
+
+    if (getCookie("user") == '') 
      {
-     name=window.prompt("please enter user name : ");
-     setCookie("user",name);
-     socket.emit("user name",name);
-     }
-     else 
-     {name=getCookie("user");
-     socket.emit("user name",name);
+       
+      document.getElementById("myDiv").style.display = "block";
+      document.getElementById("main").style.display = "none";
+      document.getElementById("loader").style.display = "block";
+      document.getElementById("logout").style.display="none";
     }
-
-   myFunction(name +" Conencted ");
-
-          
-        
-  
-
-         
-     
       
-
-        socket.on("leave user",function(name)
-        {
-            myFunction(name + " Disconnected");
-        });
-           $(function () {
-     
-          $('form').submit(function(e){
-            e.preventDefault(); // prevents page reloading
-            socket.emit("user name",name)
       
-        
-
-            socket.emit('chat message', $('#m').val());
-            $('#m').val('');
-            return false;
-          });
-          socket.on('chat message', function(msg){
-            $('#messages').append($('<li>').text(msg));
-          });
-
-     
-
-        });
-
-
-        function myFunction(msg) {
-  // Get the snackbar DIV
-  var x = document.getElementById("snackbar");
-
-  // Add the "show" class to DIV
-  x.className = "show";
-x.innerHTML=msg;
-  // After 3 seconds, remove the show class from DIV
-  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
-}
-
-
-function setCookie(cname, cvalue) {
-
-
-  document.cookie = cname + "=" + cvalue + ";" +"path=/";
-}
-
-function Logout()
-{
-  document.cookie = "user=;path=/;";
-  location.reload();
-}
-function getCookie(cname) {
-  var name = cname + "=";
-  var decodedCookie = decodeURIComponent(document.cookie);
-  var ca = decodedCookie.split(';');
-  for(var i = 0; i <ca.length; i++) {
-    var c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
+   
+    else {
+      name = getCookie("user");
+      socket.emit("user name", name);
     }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
+
+   // myFunction(name + " Conencted ");
+
+
+
+    function createUser() 
+    {
+      if(document.getElementById("user").value=='')
+      {
+        document.getElementById("user").value="user";
+      return; 
+      }
+      else 
+      {name = document.getElementById("user").value;
+      setCookie("user", name);
+      socket.emit("user name", name);
+      document.getElementById("main").style.display = "block";
+      document.getElementById("myDiv").style.display = "none";
+      document.getElementById("loader").style.display = "none";
+      document.getElementById("logout").style.display="block";
+
+      }
+
     }
-  }
-  return "";
+
+
+
+
+
+    socket.on("leave user", function (name) {
+     // myFunction(name + " Disconnected");
+    });
+    $(function () {
+
+      $('form').submit(function (e) {
+        e.preventDefault(); // prevents page reloading
+        socket.emit("user name", name)
+
+
+
+        socket.emit('chat message', $('#m').val());
+        $('#m').val('');
+        return false;
+      });
+      socket.on('chat message', function (msg) {
+        $('#messages').append($('<li>').text(msg));
+      });
+
+
+
+    });
+
+
+   // function myFunction(msg) {
+      // Get the snackbar DIV
+     // var x = document.getElementById("snackbar");
+
+      // Add the "show" class to DIV
+    //  x.className = "show";
+     // x.innerHTML = msg;
+      // After 3 seconds, remove the show class from DIV
+     // setTimeout(function () { x.className = x.className.replace("show", ""); }, 3000);
+   // }
+
+
+    function setCookie(cname, cvalue) {
+
+
+      document.cookie = cname + "=" + cvalue + ";" + "path=/";
+    }
+
+    function Logout() {
+      document.cookie = "user=;path=/;";
+      location.reload();
+    }
+    function getCookie(cname) {
+      var name = cname + "=";
+      var decodedCookie = decodeURIComponent(document.cookie);
+      var ca = decodedCookie.split(';');
+      for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+          return c.substring(name.length, c.length);
+        }
+      }
+      return "";
+    }
+
+    function checkCookie(cname) {
+      var username = getCookie(cname);
+      if (username != "") {
+        alert("Welcome again " + username);
+      } else {
+        username = prompt("Please enter your name:", "");
+        if (username != "" && username != null) {
+          setCookie("username", username);
+        }
+      }
+    }
+
+
+
+
+
+
+
+
+    var myVar;
+
+function fff() {
+  myVar = setTimeout(showPage, 3000);
 }
 
-function checkCookie(cname) {
-  var username = getCookie(cname);
-  if (username != "") {
-   alert("Welcome again " + username);
-  } else {
-    username = prompt("Please enter your name:", "");
-    if (username != "" && username != null) {
-      setCookie("username", username);
-    }
-  }
+function showPage() {
+  document.getElementById("loader").style.display = "none";
+ 
 }
 
 
@@ -202,15 +394,7 @@ function checkCookie(cname) {
 
 
 
+  </script>
+</body>
 
-
-
-
-
-
-
-
-
-      </script>
-  </body>
 </html>
